@@ -20,7 +20,7 @@ class ProduitController
         $produits = $produitRepository->findAll();
         return new JsonResponse([
             'status' => 200,
-            'message' => 'Tous les produits sont récupérés',
+            'message' => 'Tous les produits sont recuperes',
             'data' => $produits,
         ], 200);
     }
@@ -30,7 +30,7 @@ class ProduitController
     {
         return new JsonResponse([
             'status' => 200,
-            'message' => 'Produit récupéré',
+            'message' => 'Produit recupere',
             'data' => $produit,
         ], 200);
     }
@@ -42,12 +42,12 @@ class ProduitController
 
         $categorie = $categorieRepository->find($data['categorie_id'] ?? null);
         if (!$categorie) {
-            return new JsonResponse(['error' => 'Catégorie introuvable.'], 404);
+            return new JsonResponse(['error' => 'Categorie introuvable.'], 404);
         }
 
         $produit = new Produit();
-        $produit->setNom($data['nom'] ?? '');
-        $produit->setDescription($data['description'] ?? '');
+        $produit->setNom($data['nom']);
+        $produit->setDescription($data['description']);
         $produit->setPrix($data['prix'] ?? 0);
         $produit->setCategorie($categorie);
         $produit->setDateCreation(new \DateTime());
@@ -66,7 +66,7 @@ class ProduitController
 
         return new JsonResponse([
             'status' => 201,
-            'message' => 'Produit créé !',
+            'message' => 'Produit cree !',
             'data' => $produit,
         ], 201);
     }
@@ -79,7 +79,7 @@ class ProduitController
         if (isset($data['categorie_id'])) {
             $categorie = $categorieRepository->find($data['categorie_id']);
             if (!$categorie) {
-                return new JsonResponse(['error' => 'Catégorie non trouvée'], 404);
+                return new JsonResponse(['error' => 'Categorie non trouvee'], 404);
             }
             $produit->setCategorie($categorie);
         }
@@ -114,7 +114,7 @@ class ProduitController
 
         return new JsonResponse([
             'status' => 200,
-            'message' => 'Produit supprimé !',
+            'message' => 'Produit supprime !',
         ], 200);
     }
 }

@@ -21,6 +21,7 @@ class Categorie
     )]
     private ?string $nom = null;
 
+    
     public function getId(): ?int
     {
         return $this->id;
