@@ -165,7 +165,7 @@ const Produit = () => {
   };
 
   return (
-    <div className="bg-white rounded-full-lg shadow-lg p-6">
+    <div className="bg-white rounded-3xl shadow-lg p-6 b">
       <h2
         ref={titleRef}
         className="text-3xl font-bold text-gray-800 mb-6 text-center"
