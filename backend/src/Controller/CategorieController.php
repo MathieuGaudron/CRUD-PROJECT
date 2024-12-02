@@ -17,48 +17,61 @@ class CategorieController
     public function index(CategorieRepository $categorieRepository): JsonResponse
     {
         $categories = $categorieRepository->findAll();
+
         
+        $tableauCategories = array_map(function ($categorie) {
+            return [
+                'id' => $categorie->getId(),
+                'nom' => $categorie->getNom(),
+            ];
+        }, $categories);
+
         return new JsonResponse([
             'status' => 200,
-            'message' => 'Toutes les categories ont ete recuperees',
-            'data' => $categories,
+            'message' => 'Toutes les catégories ont été récupérées.',
+            'data' => $tableauCategories,
         ], 200);
     }
+
+    
 
     #[Route('/{id}', name: 'categorie_show', methods: ['GET'])]
     public function show(Categorie $categorie): JsonResponse
     {
+        $tableauCategorie = [
+            'id' => $categorie->getId(),
+            'nom' => $categorie->getNom(),
+        ];
+
         return new JsonResponse([
             'status' => 200,
-            'message' => 'Categorie recuperee !',
-            'data' => $categorie,
+            'message' => 'Catégorie récupérée !',
+            'data' => $tableauCategorie,
         ], 200);
     }
-
-
 
     #[Route('', name: 'categorie_new', methods: ['POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager, ValidatorInterface $validator, CategorieRepository $categorieRepository): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
-    
+
         if (!isset($data['nom']) || empty($data['nom'])) {
             return new JsonResponse([
-                'error' => 'Le champ Nom est obligatoire.'
+                'error' => 'Le champ Nom est obligatoire.',
             ], 400);
         }
-    
+
         $existingCategorie = $categorieRepository->findOneBy(['nom' => $data['nom']]);
         if ($existingCategorie) {
             return new JsonResponse([
                 'status' => 400,
-                'message' => 'Le nom de la categorie existe déjà.',
+                'message' => 'Le nom de la catégorie existe déjà.',
             ], 400);
         }
-    
+
         $categorie = new Categorie();
         $categorie->setNom($data['nom']);
-    
+
         $errors = $validator->validate($categorie);
         if (count($errors) > 0) {
             $errorMessages = [];
@@ -67,33 +80,35 @@ class CategorieController
             }
             return new JsonResponse(['errors' => $errorMessages], 400);
         }
+
         $entityManager->persist($categorie);
         $entityManager->flush();
-    
+
+        $tableauCategorie = [
+            'id' => $categorie->getId(),
+            'nom' => $categorie->getNom(),
+        ];
+
         return new JsonResponse([
             'status' => 201,
-            'message' => 'Categorie creee !',
-            'data' => $categorie,
+            'message' => 'Catégorie créée !',
+            'data' => $tableauCategorie,
         ], 201);
     }
-    
+
 
 
     #[Route('/{id}', name: 'categorie_edit', methods: ['PUT'])]
     public function edit(Request $request, Categorie $categorie, EntityManagerInterface $entityManager, ValidatorInterface $validator): JsonResponse
     {
-        if (!$categorie) {
-            return new JsonResponse([
-                'error' => 'Categorie non trouvee.'
-            ], 404);
-        }
-    
         $data = json_decode($request->getContent(), true);
-    
+
         if (!isset($data['nom']) || empty(trim($data['nom']))) {
-            return new JsonResponse(['error' => 'Le champ Nom est obligatoire'], 400);
+            return new JsonResponse([
+                'error' => 'Le champ Nom est obligatoire.',
+            ], 400);
         }
-    
+
         $categorie->setNom($data['nom']);
 
         $errors = $validator->validate($categorie);
@@ -104,15 +119,22 @@ class CategorieController
             }
             return new JsonResponse(['errors' => $errorMessages], 400);
         }
+
         $entityManager->flush();
+
+        $tableauCategorie = [
+            'id' => $categorie->getId(),
+            'nom' => $categorie->getNom(),
+        ];
 
         return new JsonResponse([
             'status' => 200,
-            'message' => 'Categorie mise a jour !',
-            'data' => $categorie,
+            'message' => 'Catégorie mise à jour !',
+            'data' => $tableauCategorie,
         ], 200);
     }
-    
+
+
 
     #[Route('/{id}', name: 'categorie_delete', methods: ['DELETE'])]
     public function delete(Categorie $categorie, EntityManagerInterface $entityManager): JsonResponse
@@ -122,7 +144,7 @@ class CategorieController
 
         return new JsonResponse([
             'status' => 200,
-            'message' => 'Categorie supprimee !',
+            'message' => 'Catégorie supprimée !',
         ], 200);
     }
 }
