@@ -1,15 +1,23 @@
 import React, { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { setCategories, addCategorie, setLoading, setError, } from "../redux/slices/categorieSlice";
 
 const API_URL = "https://localhost:8000/api";
 
 const Categorie = () => {
-  const [categories, setCategories] = useState([]);
+  const dispatch = useDispatch();
+
+  const { list: categories, loading, error } = useSelector(
+    (state) => state.categorie
+  );
+
   const [newNom, setNewNom] = useState("");
   const [editId, setEditId] = useState(null);
   const [editNom, setEditNom] = useState("");
 
   useEffect(() => {
     const fetchCategories = async () => {
+      dispatch(setLoading(true)); 
       try {
         const response = await fetch(`${API_URL}/categorie`);
         const data = await response.json();
@@ -18,16 +26,18 @@ const Categorie = () => {
           throw new Error("Erreur lors de la récupération des catégories.");
         }
 
-        setCategories(data.data);
+        dispatch(setCategories(data.data));
       } catch (err) {
-        alert(err.message);
+        dispatch(setError(err.message));
+      } finally {
+        dispatch(setLoading(false)); 
       }
     };
 
     fetchCategories();
-  }, []);
+  }, [dispatch]);
 
-  const addCategorie = async () => {
+  const handleAddCategorie = async () => {
     if (!newNom.trim()) {
       alert("Veuillez entrer un nom de catégorie !");
       return;
@@ -45,14 +55,14 @@ const Categorie = () => {
         throw new Error(data.message || "Erreur lors de l'ajout.");
       }
 
-      setCategories([...categories, data.data]);
-      setNewNom("");
+      dispatch(addCategorie(data.data));
+      setNewNom(""); 
     } catch (err) {
       alert(err.message);
     }
   };
 
-  const editCategorie = async () => {
+  const handleEditCategorie = async () => {
     if (!editNom.trim()) {
       alert("Veuillez entrer un nouveau nom !");
       return;
@@ -73,7 +83,7 @@ const Categorie = () => {
       const updatedCategories = categories.map((cat) =>
         cat.id === editId ? { ...cat, nom: editNom } : cat
       );
-      setCategories(updatedCategories);
+      dispatch(setCategories(updatedCategories));
       setEditId(null);
       setEditNom("");
     } catch (err) {
@@ -81,7 +91,7 @@ const Categorie = () => {
     }
   };
 
-  const deleteCategorie = async (id) => {
+  const handleDeleteCategorie = async (id) => {
     const confirmDelete = window.confirm("Supprimer cette catégorie ?");
     if (!confirmDelete) return;
 
@@ -94,17 +104,15 @@ const Categorie = () => {
         throw new Error("Erreur lors de la suppression.");
       }
 
-      const indexToDelete = categories.findIndex((cat) => cat.id === id);
-
-      if (indexToDelete !== -1) {
-        const updatedCategories = [...categories];
-        updatedCategories.splice(indexToDelete, 1);
-        setCategories(updatedCategories);
-      }
+      const updatedCategories = categories.filter((cat) => cat.id !== id);
+      dispatch(setCategories(updatedCategories));
     } catch (err) {
       alert(err.message);
     }
   };
+
+  if (loading) return <p>Chargement...</p>;
+  if (error) return <p className="text-red-500">{error}</p>;
 
   return (
     <div className="bg-white rounded-xl shadow-md p-6">
@@ -127,7 +135,7 @@ const Categorie = () => {
                   className="border border-gray-300 rounded px-2 py-1 mb-2"
                 />
                 <button
-                  onClick={editCategorie}
+                  onClick={handleEditCategorie}
                   className="bg-blue-600 text-white px-3 font-bold py-1 rounded-full hover:bg-blue-700 mr-2"
                 >
                   Enregistrer
@@ -157,7 +165,7 @@ const Categorie = () => {
                   Modifier
                 </button>
                 <button
-                  onClick={() => deleteCategorie(categorie.id)}
+                  onClick={() => handleDeleteCategorie(categorie.id)}
                   className="bg-red-600 text-white font-bold px-3 py-1 rounded-full hover:bg-red-700"
                 >
                   Supprimer
@@ -177,7 +185,7 @@ const Categorie = () => {
           className="border border-gray-300 rounded px-3 py-1 mr-2"
         />
         <button
-          onClick={addCategorie}
+          onClick={handleAddCategorie}
           className="bg-blue-600 text-white font-bold px-3 py-1 rounded-full hover:bg-blue-700"
         >
           Ajouter
