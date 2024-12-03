@@ -68,7 +68,7 @@ const App = () => {
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white p-6 flex flex-col items-center rounded-lg shadow-lg max-w-sm w-full">
               <h3 className="text-lg sm:text-xl lg:text-2xl font-semibold mb-4 text-center">
-                J'aimerais pouvoir continuer mes études. Recrutez-moi,
+                J'aimerais pouvoir continuer mes études. Recrutez-moi
                 svp, en plus ça fait 4 mois que je n'ai plus d'argent... :'(
               </h3>
               <img
