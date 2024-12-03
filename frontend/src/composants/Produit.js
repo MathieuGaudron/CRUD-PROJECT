@@ -1,8 +1,23 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  setProduits,
+  addProduit,
+  editProduit,
+  deleteProduit,
+  setLoading,
+  setError,
+} from "../redux/slices/produitSlice";
 
 const API_URL = "https://localhost:8000/api";
 
 const Produit = () => {
+  const dispatch = useDispatch();
+
+  const produits = useSelector((state) => state.produit.list);
+  const loading = useSelector((state) => state.produit.loading);
+  const error = useSelector((state) => state.produit.error);
+
   const [formData, setFormData] = useState({
     nom: "",
     description: "",
@@ -10,12 +25,10 @@ const Produit = () => {
     categorie_id: "",
   });
   const [categories, setCategories] = useState([]);
-  const [produits, setProduits] = useState([]);
-  const [message, setMessage] = useState("");
   const [editMode, setEditMode] = useState(false);
   const [currentProduit, setCurrentProduit] = useState(null);
-
   const [searchProduit, setSearchProduit] = useState("");
+  const [message, setMessage] = useState("");
 
   const titleRef = useRef(null);
 
@@ -36,18 +49,21 @@ const Produit = () => {
 
   useEffect(() => {
     const fetchProduits = async () => {
+      dispatch(setLoading(true));
       try {
         const response = await fetch(`${API_URL}/produit`);
         if (!response.ok)
           throw new Error("Erreur lors de la récupération des produits.");
         const data = await response.json();
-        setProduits(data.data);
+        dispatch(setProduits(data.data));
       } catch (error) {
-        console.error("Erreur :", error.message);
+        dispatch(setError(error.message));
+      } finally {
+        dispatch(setLoading(false));
       }
     };
     fetchProduits();
-  }, []);
+  }, [dispatch]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -57,7 +73,7 @@ const Produit = () => {
     }));
   };
 
-  const addProduit = async (e) => {
+  const handleAddProduit = async (e) => {
     e.preventDefault();
     try {
       const response = await fetch(`${API_URL}/produit`, {
@@ -71,22 +87,21 @@ const Produit = () => {
       const data = await response.json();
 
       if (response.ok) {
-        setProduits((prev) => [...prev, data.data]);
+        dispatch(addProduit(data.data));
+        setFormData({ nom: "", description: "", prix: "", categorie_id: "" });
         setMessage("Produit créé avec succès !");
         alert("Produit créé avec succès !");
-        window.location.reload();
       } else {
-        setMessage(data.error || "Erreur lors de la création du produit.");
-        alert(data.error || "Erreur lors de la création du produit.");
+        setMessage("Erreur lors de la création du produit : " + data.error);
+        alert("Erreur lors de la création du produit : " + data.error);
       }
     } catch (error) {
-      console.error("Erreur:", error);
-      setMessage("Impossible de créer le produit.");
-      alert("Impossible de créer le produit.");
+      setMessage("Erreur : Impossible de créer le produit.");
+      alert("Erreur : Impossible de créer le produit.");
     }
   };
 
-  const editProduit = async (e) => {
+  const handleEditProduit = async (e) => {
     e.preventDefault();
     try {
       const response = await fetch(`${API_URL}/produit/${currentProduit.id}`, {
@@ -100,28 +115,44 @@ const Produit = () => {
       const data = await response.json();
 
       if (response.ok) {
-        setProduits((prev) =>
-          prev.map((produit) =>
-            produit.id === currentProduit.id ? data.data : produit
-          )
-        );
+        dispatch(editProduit({ id: currentProduit.id, data: data.data }));
         setEditMode(false);
         setCurrentProduit(null);
         setMessage("Produit modifié avec succès !");
         alert("Produit modifié avec succès !");
-        window.location.reload();
       } else {
-        setMessage(data.error || "Erreur lors de la modification du produit.");
-        alert(data.error || "Erreur lors de la modification du produit.");
+        setMessage("Erreur lors de la modification du produit : " + data.error);
+        alert("Erreur lors de la modification du produit : " + data.error);
       }
     } catch (error) {
-      console.error("Erreur:", error);
-      setMessage("Impossible de modifier le produit.");
-      alert("Impossible de modifier le produit.");
+      setMessage("Erreur : Impossible de modifier le produit.");
+      alert("Erreur : Impossible de modifier le produit.");
     }
   };
 
-  const formulaireEdit = (produit) => {
+  const handleDeleteProduit = async (id) => {
+    if (!window.confirm("Êtes-vous sûr de vouloir supprimer ce produit ?"))
+      return;
+    try {
+      const response = await fetch(`${API_URL}/produit/${id}`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        dispatch(deleteProduit(id));
+        setMessage("Produit supprimé avec succès !");
+        alert("Produit supprimé avec succès !");
+      } else {
+        setMessage("Erreur lors de la suppression du produit.");
+        alert("Erreur lors de la suppression du produit.");
+      }
+    } catch (error) {
+      setMessage("Erreur : Impossible de supprimer le produit.");
+      alert("Erreur : Impossible de supprimer le produit.");
+    }
+  };
+
+  const handleEditForm = (produit) => {
     setFormData({
       nom: produit.nom,
       description: produit.description,
@@ -136,44 +167,13 @@ const Produit = () => {
     }
   };
 
-  const deleteProduit = async (id) => {
-    const confirmDelete = window.confirm(
-      "Êtes-vous sûr de vouloir supprimer ce produit ?"
-    );
-    if (!confirmDelete) return;
-
-    try {
-      const response = await fetch(`${API_URL}/produit/${id}`, {
-        method: "DELETE",
-      });
-
-      const data = await response.json();
-      if (response.ok) {
-        setProduits((prevProduits) =>
-          prevProduits.filter((produit) => produit.id !== id)
-        );
-        setMessage("Produit supprimé avec succès !");
-        alert("Produit supprimé avec succès !");
-        window.location.reload();
-      } else {
-        setMessage(data.error || "Erreur lors de la suppression du produit.");
-        alert(data.error || "Erreur lors de la suppression du produit.");
-      }
-    } catch (error) {
-      console.error("Erreur:", error);
-      setMessage("Impossible de supprimer le produit.");
-      alert("Impossible de supprimer le produit.");
-    }
-  };
-
   const filtreProduit = produits.filter((produit) => {
-    const query = searchProduit.toLowerCase(); 
+    const query = searchProduit.toLowerCase();
     const produitNom = produit.nom?.toLowerCase() || "";
-    const produitCategorie = produit.categorie?.toLowerCase() || ""; 
+    const produitCategorie = produit.categorie?.toLowerCase() || "";
 
     return produitNom.includes(query) || produitCategorie.includes(query);
   });
-  
 
   return (
     <div className="bg-white rounded-3xl shadow-lg p-6">
@@ -183,7 +183,7 @@ const Produit = () => {
       >
         {editMode ? "Modifier un Produit" : "Ajouter un Produit"}
       </h2>
-      <form className="mb-6" onSubmit={editMode ? editProduit : addProduit}>
+      <form className="mb-6" onSubmit={editMode ? handleEditProduit : handleAddProduit}>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <input
             type="text"
@@ -235,17 +235,15 @@ const Produit = () => {
         </button>
       </form>
 
-
-      <div className="mb-6">
+      <div className="mb-6 mt-16">
         <input
           type="text"
-          placeholder="Rechercher un produit..."
+          placeholder="Rechercher un produit ou une categorie "
           value={searchProduit}
           onChange={(e) => setSearchProduit(e.target.value)}
           className="border rounded-full-lg px-4 py-2 w-full"
         />
       </div>
-
 
       <table className="table-auto w-full border-collapse border border-gray-300 rounded-lg">
         <thead>
@@ -268,50 +266,42 @@ const Produit = () => {
           </tr>
         </thead>
         <tbody>
-        {filtreProduit.map((produit) => {
-            const categorie = produit.categorie || "Non défini";
-            const nom = produit.nom || "Nom non défini";
-            const description = produit.description || "Pas de description";
-            const prix = produit.prix ? `${produit.prix} €` : "Prix non défini";
-
-            return (
+          {filtreProduit.map((produit) => (
             <tr
-                key={produit.id}
-                className="hover:bg-gray-100 hover:shadow-md transition-all duration-200 transform hover:scale-101"
+              key={produit.id}
+              className="hover:bg-gray-100 hover:shadow-md transition-all duration-200 transform hover:scale-101"
             >
-                <td className="border border-gray-300 px-4 py-2 text-gray-700">
-                {categorie}
-                </td>
-                <td className="border border-gray-300 px-4 font-bold py-2 text-gray-700">
-                {nom}
-                </td>
-                <td className="border border-gray-300 px-4 py-2 text-gray-600">
-                {description}
-                </td>
-                <td className="border border-gray-300 px-4 py-2 text-gray-700 font-semibold">
-                {prix}
-                </td>
-                <td className="border border-gray-300 px-4 py-2 text-gray-700">
+              <td className="border border-gray-300 px-4 py-2 text-gray-700">
+                {produit.categorie || "Non défini"}
+              </td>
+              <td className="border border-gray-300 px-4 font-bold py-2 text-gray-700">
+                {produit.nom}
+              </td>
+              <td className="border border-gray-300 px-4 py-2 text-gray-600">
+                {produit.description}
+              </td>
+              <td className="border border-gray-300 px-4 py-2 text-gray-700 font-semibold">
+                {produit.prix ? `${produit.prix} €` : "Prix non défini"}
+              </td>
+              <td className="border border-gray-300 px-4 py-2 text-gray-700">
                 <div className="flex space-x-2 justify-center">
-                    <button
-                    onClick={() => formulaireEdit(produit)}
+                  <button
+                    onClick={() => handleEditForm(produit)}
                     className="bg-orange-500 text-white px-3 py-1 font-bold rounded-full hover:bg-orange-600"
-                    >
+                  >
                     Modifier
-                    </button>
-                    <button
-                    onClick={() => deleteProduit(produit.id)}
+                  </button>
+                  <button
+                    onClick={() => handleDeleteProduit(produit.id)}
                     className="bg-red-600 text-white px-3 py-1 font-bold rounded-full hover:bg-red-700"
-                    >
+                  >
                     Supprimer
-                    </button>
+                  </button>
                 </div>
-                </td>
+              </td>
             </tr>
-            );
-        })}
+          ))}
         </tbody>
-
       </table>
     </div>
   );
