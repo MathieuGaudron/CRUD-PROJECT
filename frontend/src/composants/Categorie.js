@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { setCategories, addCategorie, setLoading, setError, } from "../redux/slices/categorieSlice";
+import { setCategories, addCategorie, setLoading, setError } from "../redux/slices/categorieSlice";
 
 const API_URL = "https://localhost:8000/api";
 
 const Categorie = () => {
   const dispatch = useDispatch();
 
-  const { list: categories, loading, error } = useSelector(
-    (state) => state.categorie
-  );
+  const { list: categories, loading, error } = useSelector((state) => state.categorie);
 
   const [newNom, setNewNom] = useState("");
   const [editId, setEditId] = useState(null);
@@ -17,7 +15,7 @@ const Categorie = () => {
 
   useEffect(() => {
     const fetchCategories = async () => {
-      dispatch(setLoading(true)); 
+      dispatch(setLoading(true));
       try {
         const response = await fetch(`${API_URL}/categorie`);
         const data = await response.json();
@@ -30,7 +28,7 @@ const Categorie = () => {
       } catch (err) {
         dispatch(setError(err.message));
       } finally {
-        dispatch(setLoading(false)); 
+        dispatch(setLoading(false));
       }
     };
 
@@ -56,7 +54,7 @@ const Categorie = () => {
       }
 
       dispatch(addCategorie(data.data));
-      setNewNom(""); 
+      setNewNom("");
     } catch (err) {
       alert(err.message);
     }
@@ -120,7 +118,7 @@ const Categorie = () => {
         Catégories
       </h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {categories.map((categorie) => (
           <div
             key={categorie.id}
@@ -132,44 +130,48 @@ const Categorie = () => {
                   type="text"
                   value={editNom}
                   onChange={(e) => setEditNom(e.target.value)}
-                  className="border border-gray-300 rounded px-2 py-1 mb-2"
+                  className="border border-gray-300 rounded px-2 py-1 mb-2 w-full"
                 />
-                <button
-                  onClick={handleEditCategorie}
-                  className="bg-blue-600 text-white px-3 font-bold py-1 rounded-full hover:bg-blue-700 mr-2"
-                >
-                  Enregistrer
-                </button>
-                <button
-                  onClick={() => {
-                    setEditId(null);
-                    setEditNom("");
-                  }}
-                  className="bg-red-600 text-white font-bold px-3 py-1 rounded hover:bg-red-700"
-                >
-                  Annuler
-                </button>
+                <div className="flex justify-center gap-2">
+                  <button
+                    onClick={handleEditCategorie}
+                    className="bg-blue-600 text-white px-3 font-bold py-1 rounded-full hover:bg-blue-700"
+                  >
+                    Enregistrer
+                  </button>
+                  <button
+                    onClick={() => {
+                      setEditId(null);
+                      setEditNom("");
+                    }}
+                    className="bg-red-600 text-white font-bold px-3 py-1 rounded hover:bg-red-700"
+                  >
+                    Annuler
+                  </button>
+                </div>
               </div>
             ) : (
               <div>
                 <h3 className="text-lg font-bold text-gray-800 mb-2">
                   {categorie.nom}
                 </h3>
-                <button
-                  onClick={() => {
-                    setEditId(categorie.id);
-                    setEditNom(categorie.nom);
-                  }}
-                  className="bg-orange-500 text-white font-bold px-3 py-1 rounded-full hover:bg-orange-600 mr-2"
-                >
-                  Modifier
-                </button>
-                <button
-                  onClick={() => handleDeleteCategorie(categorie.id)}
-                  className="bg-red-600 text-white font-bold px-3 py-1 rounded-full hover:bg-red-700"
-                >
-                  Supprimer
-                </button>
+                <div className="flex justify-center gap-2">
+                  <button
+                    onClick={() => {
+                      setEditId(categorie.id);
+                      setEditNom(categorie.nom);
+                    }}
+                    className="bg-orange-500 text-white font-bold px-3 py-1 rounded-full hover:bg-orange-600"
+                  >
+                    Modifier
+                  </button>
+                  <button
+                    onClick={() => handleDeleteCategorie(categorie.id)}
+                    className="bg-red-600 text-white font-bold px-3 py-1 rounded-full hover:bg-red-700"
+                  >
+                    Supprimer
+                  </button>
+                </div>
               </div>
             )}
           </div>
@@ -177,19 +179,21 @@ const Categorie = () => {
       </div>
 
       <div className="mt-6">
-        <input
-          type="text"
-          value={newNom}
-          onChange={(e) => setNewNom(e.target.value)}
-          placeholder="Nouvelle catégorie"
-          className="border border-gray-300 rounded px-3 py-1 mr-2"
-        />
-        <button
-          onClick={handleAddCategorie}
-          className="bg-blue-600 text-white font-bold px-3 py-1 rounded-full hover:bg-blue-700"
-        >
-          Ajouter
-        </button>
+        <div className="flex flex-col sm:flex-row gap-2">
+          <input
+            type="text"
+            value={newNom}
+            onChange={(e) => setNewNom(e.target.value)}
+            placeholder="Nouvelle catégorie"
+            className="border border-gray-300 rounded px-3 py-1 flex-1"
+          />
+          <button
+            onClick={handleAddCategorie}
+            className="bg-blue-600 text-white font-bold px-3 py-1 rounded-full hover:bg-blue-700"
+          >
+            Ajouter
+          </button>
+        </div>
       </div>
     </div>
   );

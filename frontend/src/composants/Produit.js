@@ -1,13 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  setProduits,
-  addProduit,
-  editProduit,
-  deleteProduit,
-  setLoading,
-  setError,
-} from "../redux/slices/produitSlice";
+import { setProduits, addProduit, editProduit, deleteProduit, setLoading, setError, } from "../redux/slices/produitSlice";
 
 const API_URL = "https://localhost:8000/api";
 
@@ -179,12 +172,12 @@ const Produit = () => {
     <div className="bg-white rounded-3xl shadow-lg p-6">
       <h2
         ref={titleRef}
-        className="text-3xl font-bold text-gray-800 mb-6 text-center"
+        className="text-2xl md:text-3xl font-bold text-gray-800 mb-6 text-center"
       >
         {editMode ? "Modifier un Produit" : "Ajouter un Produit"}
       </h2>
       <form className="mb-6" onSubmit={editMode ? handleEditProduit : handleAddProduit}>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <input
             type="text"
             name="nom"
@@ -235,74 +228,76 @@ const Produit = () => {
         </button>
       </form>
 
-      <div className="mb-6 mt-16">
+      <div className="mb-6 mt-6">
         <input
           type="text"
-          placeholder="Rechercher un produit ou une categorie "
+          placeholder="Rechercher un produit ou une catégorie"
           value={searchProduit}
           onChange={(e) => setSearchProduit(e.target.value)}
           className="border rounded-full-lg px-4 py-2 w-full"
         />
       </div>
 
-      <table className="table-auto w-full border-collapse border border-gray-300 rounded-lg">
-        <thead>
-          <tr className="bg-gradient-to-r from-blue-500 via-blue-400 to-blue-300 text-white">
-            <th className="border border-gray-200 px-4 py-2 text-sm font-bold text-left">
-              Catégorie
-            </th>
-            <th className="border border-gray-200 px-4 py-2 text-sm font-bold text-left">
-              Nom
-            </th>
-            <th className="border border-gray-200 px-4 py-2 text-sm font-bold text-left">
-              Description
-            </th>
-            <th className="border border-gray-200 px-4 py-2 text-sm font-bold text-left">
-              Prix
-            </th>
-            <th className="border border-gray-200 px-4 py-2 text-sm font-bold text-left">
-              Actions
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {filtreProduit.map((produit) => (
-            <tr
-              key={produit.id}
-              className="hover:bg-gray-100 hover:shadow-md transition-all duration-200 transform hover:scale-101"
-            >
-              <td className="border border-gray-300 px-4 py-2 text-gray-700">
-                {produit.categorie || "Non défini"}
-              </td>
-              <td className="border border-gray-300 px-4 font-bold py-2 text-gray-700">
-                {produit.nom}
-              </td>
-              <td className="border border-gray-300 px-4 py-2 text-gray-600">
-                {produit.description}
-              </td>
-              <td className="border border-gray-300 px-4 py-2 text-gray-700 font-semibold">
-                {produit.prix ? `${produit.prix} €` : "Prix non défini"}
-              </td>
-              <td className="border border-gray-300 px-4 py-2 text-gray-700">
-                <div className="flex space-x-2 justify-center">
-                  <button
-                    onClick={() => handleEditForm(produit)}
-                    className="bg-orange-500 text-white px-3 py-1 font-bold rounded-full hover:bg-orange-600"
-                  >
-                    Modifier
-                  </button>
-                  <button
-                    onClick={() => handleDeleteProduit(produit.id)}
-                    className="bg-red-600 text-white px-3 py-1 font-bold rounded-full hover:bg-red-700"
-                  >
-                    Supprimer
-                  </button>
-                </div>
-              </td>
+      <div className="overflow-x-auto">
+        <table className="table-auto w-full border-collapse border border-gray-300 rounded-lg">
+          <thead>
+            <tr className="bg-gradient-to-r from-blue-500 via-blue-400 to-blue-300 text-white">
+              <th className="border border-gray-200 px-4 py-2 text-sm font-bold text-left">
+                Catégorie
+              </th>
+              <th className="border border-gray-200 px-4 py-2 text-sm font-bold text-left">
+                Nom
+              </th>
+              <th className="border border-gray-200 px-4 py-2 text-sm font-bold text-left">
+                Description
+              </th>
+              <th className="border border-gray-200 px-4 py-2 text-sm font-bold text-left">
+                Prix
+              </th>
+              <th className="border border-gray-200 px-4 py-2 text-sm font-bold text-left">
+                Actions
+              </th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {filtreProduit.map((produit) => (
+              <tr
+                key={produit.id}
+                className="hover:bg-gray-100 hover:shadow-md transition-all duration-200 transform hover:scale-101"
+              >
+                <td className="border border-gray-300 px-4 py-2 text-gray-700">
+                  {produit.categorie || "Non défini"}
+                </td>
+                <td className="border border-gray-300 px-4 font-bold py-2 text-gray-700">
+                  {produit.nom}
+                </td>
+                <td className="border border-gray-300 px-4 py-2 text-gray-600">
+                  {produit.description}
+                </td>
+                <td className="border border-gray-300 px-4 py-2 text-gray-700 font-semibold">
+                  {produit.prix ? `${produit.prix} €` : "Prix non défini"}
+                </td>
+                <td className="border border-gray-300 px-4 py-2 text-gray-700">
+                  <div className="flex space-x-2 justify-center">
+                    <button
+                      onClick={() => handleEditForm(produit)}
+                      className="bg-orange-500 text-white px-3 py-1 font-bold rounded-full hover:bg-orange-600"
+                    >
+                      Modifier
+                    </button>
+                    <button
+                      onClick={() => handleDeleteProduit(produit.id)}
+                      className="bg-red-600 text-white px-3 py-1 font-bold rounded-full hover:bg-red-700"
+                    >
+                      Supprimer
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };
