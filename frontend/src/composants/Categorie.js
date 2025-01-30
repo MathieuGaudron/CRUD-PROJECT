@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { setCategories, addCategorie, setLoading, setError } from "../redux/slices/categorieSlice";
 
-const API_URL = "https://localhost:8000/api";
+const API_URL = `${process.env.REACT_APP_API_URL}/api`;
 
 const Categorie = () => {
   const dispatch = useDispatch();

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setProduits, addProduit, editProduit, deleteProduit, setLoading, setError, } from "../redux/slices/produitSlice";
 
-const API_URL = "https://localhost:8000/api";
+const API_URL =`${process.env.REACT_APP_API_URL}/api`;
 
 const Produit = () => {
   const dispatch = useDispatch();

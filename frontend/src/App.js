@@ -4,8 +4,7 @@ import store from "./redux/store";
 import Categorie from "./composants/Categorie";
 import Produit from "./composants/Produit";
 
-const API_URL = "https://localhost:8000/api";
-
+const API_URL = `${process.env.REACT_APP_API_URL}/api`
 const App = () => {
   const [categories, setCategories] = useState([]);
   const [produit, setProduits] = useState([]);
@@ -50,9 +49,9 @@ const App = () => {
     <Provider store={store}>
       <div className="p-6 bg-gradient-to-r from-blue-500 via-blue-400 to-blue-300 min-h-screen flex flex-col items-center justify-center">
         <h1 className="text-2xl sm:text-3xl lg:text-4xl mb-6 text-center font-extrabold bg-white inline-block px-6 py-2 rounded-full shadow-lg transition-all duration-200 transform hover:scale-105">
-          <span className="text-blue-500">TEACH</span>{" "}
-          <span className="text-orange-400">'R</span>{" "}
-          <span className="text-blue-500">TEST TECHNIQUE</span>
+          <span className="text-blue-500">CRU</span>{" "}
+          <span className="text-orange-400">'D</span>{" "}
+          <span className="text-blue-500">POJECT</span>
         </h1>
 
         <button
@@ -68,8 +67,7 @@ const App = () => {
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white p-6 flex flex-col items-center rounded-lg shadow-lg max-w-sm w-full">
               <h3 className="text-lg sm:text-xl lg:text-2xl font-semibold mb-4 text-center">
-                J'aimerais pouvoir continuer mes études. Recrutez-moi
-                svp, en plus ça fait 4 mois que je n'ai plus d'argent... :'(
+               Voici un petit projet de CRUD : Catégorie / Produit !
               </h3>
               <img
                 src="/assets/hire_me.png"
